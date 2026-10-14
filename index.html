@@ -575,7 +575,6 @@ const ANN_KEY = "schedule_announcement";
 const BELLS_KEY = "schedule_bells_by_building";
 const BUILDING_KEY = "schedule_current_building";
 const LAST_SEEN_KEY = "schedule_last_seen";
-const MAINT_KEY = "schedule_maintenance";
 
 const BUILDINGS = [{ id: 1, name: "🏢 1 корпус" }, { id: 2, name: "🏢 2 корпус" }];
 
@@ -641,6 +640,7 @@ let parsedPreview = [];
 let realtimeChannel = null;
 let logsPollingTimer = null;
 let cachedAnnouncement = { text: "", show_from: null, show_until: null };
+let cachedMaintenance = false;
 
 function escapeHtml(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c])); }
 function splitTeachers(raw) { if (!raw) return []; return String(raw).split(/[,;]+/).map(s => s.trim()).filter(Boolean); }
@@ -712,9 +712,21 @@ async function checkWeekRollover() {
   } catch (e) { console.error("Week rollover error:", e); return false; }
 }
 
-/* ═══ ТЕХРАБОТЫ ═══ */
-function isMaintenanceOn() { return localStorage.getItem(MAINT_KEY) === "1"; }
-function setMaintenance(on) { localStorage.setItem(MAINT_KEY, on ? "1" : "0"); updateMaintUI(); }
+/* ═══ ТЕХРАБОТЫ (через Supabase) ═══ */
+async function loadMaintenanceFromDB() {
+  try {
+    const { data, error } = await supabaseClient.from("settings").select("value").eq("key", "maintenance").maybeSingle();
+    if (error) throw error;
+    cachedMaintenance = (data && data.value) === "1";
+  } catch (e) { cachedMaintenance = false; }
+}
+function isMaintenanceOn() { return cachedMaintenance; }
+async function setMaintenance(on) {
+  const { error } = await supabaseClient.from("settings").update({ value: on ? "1" : "0" }).eq("key", "maintenance");
+  if (error) { toast("Ошибка: " + error.message, true); return; }
+  cachedMaintenance = on;
+  updateMaintUI();
+}
 function updateMaintUI() {
   const label = document.getElementById("maintStatusLabel");
   const hint = document.getElementById("maintStatusHint");
@@ -738,7 +750,7 @@ async function toggleMaintenance() {
   if (!isAdmin()) return;
   const newState = !isMaintenanceOn();
   if (newState && !confirm("Включить режим техработ? Все, кроме админов, увидят заглушку.")) return;
-  setMaintenance(newState);
+  await setMaintenance(newState);
   await logAudit("maintenance_toggle", { details: newState ? "Режим техработ ВКЛючён" : "Режим техработ ВЫКЛючён" });
   toast(newState ? "🛠️ Техработы включены" : "✅ Сайт снова открыт для всех");
 }
@@ -760,6 +772,14 @@ function subscribeRealtime() {
       .on("postgres_changes", { event: "*", schema: "public", table: "announcement" }, async () => {
         await loadAnnouncementFromDB(); renderAnnouncement();
       })
+      .on("postgres_changes", { event: "*", schema: "public", table: "settings" }, async () => {
+        await loadMaintenanceFromDB();
+        if (isMaintenanceOn() && !isAdmin()) {
+          showMaintenanceScreen();
+        } else if (!isMaintenanceOn() && document.body.innerHTML.includes("Ведутся технические работы")) {
+          location.reload();
+        }
+      })
       .subscribe();
   } catch (e) {}
 }
@@ -780,7 +800,7 @@ document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState === "visible") { await loadScheduleFromSupabase(); renderAll(); }
 });
 
-/* ═══ УСТАНОВКА PWA ═══ */
+/* ═══ PWA ═══ */
 let deferredInstallPrompt = null;
 function isStandalonePWA() { return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true; }
 function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
@@ -1007,7 +1027,7 @@ function switchBuilding(id) {
   renderAll();
 }
 
-/* ═══ ОБЪЯВЛЕНИЕ С ПЕРИОДОМ ═══ */
+/* ═══ ОБЪЯВЛЕНИЕ ═══ */
 async function loadAnnouncementFromDB() {
   try {
     const { data, error } = await supabaseClient.from("announcement").select("text, show_from, show_until").eq("id", 1).maybeSingle();
@@ -1495,7 +1515,7 @@ async function sendSubstitution() {
   if (!group || !newTeacher) { toast("Заполните группу и кто заменяет", true); return; }
   const original = (schedulesByBuilding[currentBuilding][week] || []).find(p => p.day === day && p.pair === pair && p.group === group);
   try {
-    const { error } = await supabaseClient.from("substitutions").insert({ teacher_id: currentUser.id, teacher_name: currentUser.username, week, day, pair, group_name: group, room: room || null, original_teacher: original ? original.teacher : null, new_teacher: newTeacher, comment: comment || null });
+    const { error } = await supabaseClient.from("substitutions").insert({ teacher_id: currentUser.id, teacher_name: currentUser.username, building: currentBuilding, week, day, pair, group_name: group, room: room || null, original_teacher: original ? original.teacher : null, new_teacher: newTeacher, comment: comment || null });
     if (error) throw error;
     ["subsGroup","subsRoom","subsNewTeacher","subsComment"].forEach(id => document.getElementById(id).value = "");
     toast("✅ Заявка отправлена"); loadMySubstitutions();
@@ -1533,7 +1553,7 @@ async function approveSubstitution(id) {
   if (!isAdmin()) return;
   const { data, error: err1 } = await supabaseClient.from("substitutions").select("*").eq("id", id).single();
   if (err1 || !data) { toast("Ошибка чтения", true); return; }
-  const { error: err2 } = await supabaseClient.from("schedule").insert({ building: currentBuilding, week: data.week, day: data.day, pair: data.pair, room: data.room || "—", teacher: data.new_teacher, grp: data.group_name, subject: "🔁 Замена: " + (data.comment || data.new_teacher) });
+  const { error: err2 } = await supabaseClient.from("schedule").insert({ building: data.building || currentBuilding, week: data.week, day: data.day, pair: data.pair, room: data.room || "—", teacher: data.new_teacher, grp: data.group_name, subject: "🔁 Замена: " + (data.comment || data.new_teacher) });
   if (err2) { toast("Ошибка: " + err2.message, true); return; }
   const { error: err3 } = await supabaseClient.from("substitutions").update({ status: "approved", reviewed_by: currentUser.id, reviewed_at: new Date().toISOString() }).eq("id", id);
   if (err3) { toast("Ошибка: " + err3.message, true); return; }
@@ -1548,7 +1568,7 @@ async function rejectSubstitution(id) {
   await loadAllSubstitutions(); toast("Отклонено");
 }
 
-/* ═══ EXCEL/CSV ═══ */
+/* ═══ EXCEL / CSV ═══ */
 const dropzone = document.getElementById("dropzone");
 const excelInput = document.getElementById("excelFile");
 ["dragenter","dragover"].forEach(ev => dropzone.addEventListener(ev, e => { e.preventDefault(); dropzone.classList.add("dragover"); }));
@@ -1664,8 +1684,7 @@ async function confirmPasteUpload() {
   if (error) { toast("Ошибка: " + error.message, true); return; }
   const n = parsedPreview.length;
   await logAudit("upload_paste", { building: bldId, week: currentWeekOffset, day, details: `Вставлено ${n} строк из буфера` });
-  parsedPreview = [];
-  clearPaste();
+  parsedPreview = []; clearPaste();
   await loadScheduleFromSupabase(); renderAdminList(); renderAll();
   toast(`✅ Добавлено ${n} пар`);
 }
@@ -1730,6 +1749,7 @@ function toggleTheme() {
   document.getElementById("bldBtn2").classList.toggle("active", currentBuilding === 2);
   await loadScheduleFromSupabase();
   await checkSession();
+  await loadMaintenanceFromDB();
 
   if (isMaintenanceOn() && !isAdmin()) {
     showMaintenanceScreen();
