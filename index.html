@@ -382,32 +382,50 @@
         <select id="adminDaySelect" onchange="renderAdminList()"></select>
       </div>
     </div>
-    <div class="admin-section">
-      <h3>➕ Добавить занятие</h3>
-      <div class="form-grid">
-        <div class="form-field"><label>Корпус</label>
-          <select id="addBuilding"><option value="1">🏢 1 корпус</option><option value="2">🏢 2 корпус</option></select>
-        </div>
-        <div class="form-field"><label>Пара</label>
-          <select id="addPair"><option>1</option><option>2</option><option>3</option><option>4</option></select>
-        </div>
-        <div class="form-field"><label>Кабинет</label><input id="addRoom" placeholder="213"></div>
-        <div class="form-field"><label>Преподаватель</label><input id="addTeacher" placeholder="Иванов И.И."></div>
-        <div class="form-field"><label>Группа</label><input id="addGroup" placeholder="14-ЭО-25"></div>
-        <div class="form-field full"><label>Предмет</label><input id="addSubject" placeholder="Математика"></div>
-      </div>
-      <div class="form-actions"><button class="btn btn-primary" onclick="addPairManual()">Добавить</button></div>
+
+    <div class="auth-tabs" style="margin-bottom:14px">
+      <button class="auth-tab active" id="admAddTabExcel" onclick="switchAddTab('excel')">📊 Excel / CSV</button>
+      <button class="auth-tab"        id="admAddTabPaste" onclick="switchAddTab('paste')">📋 Из буфера</button>
     </div>
-    <div class="admin-section">
-      <h3>📊 Загрузить Excel / CSV</h3>
-      <div class="dropzone" id="dropzone" onclick="document.getElementById('excelFile').click()">
-        <span class="dz-icon">📁</span>
-        <div class="dz-text">Нажмите или перетащите файл</div>
-        <div class="dz-hint">.xlsx, .xls, .csv → в выбранный корпус и день</div>
+
+    <div id="admAddPanelExcel">
+      <div class="admin-section">
+        <h3>📊 Загрузить Excel / CSV</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+          Файл загрузится в корпус, неделю и день, выбранные сверху.<br>
+          Формат: <code>пара;кабинет;преподаватель;группа;предмет</code>
+        </p>
+        <div class="dropzone" id="dropzone" onclick="document.getElementById('excelFile').click()">
+          <span class="dz-icon">📁</span>
+          <div class="dz-text">Нажмите или перетащите файл</div>
+          <div class="dz-hint">.xlsx, .xls, .csv</div>
+        </div>
+        <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
+        <div id="previewArea"></div>
       </div>
-      <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" style="display:none">
-      <div id="previewArea"></div>
     </div>
+
+    <div id="admAddPanelPaste" style="display:none">
+      <div class="admin-section">
+        <h3>📋 Вставить из буфера</h3>
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
+          Скопируйте строки из Excel, Google Sheets или введите вручную.<br>
+          Формат: <code>пара;кабинет;преподаватель;группа;предмет</code>.
+          Разделитель — <code>;</code>, <code>,</code> или Tab.
+        </p>
+        <div class="form-field full" style="margin-bottom:10px">
+          <textarea id="pasteArea" rows="6" style="font-family:monospace;font-size:13px"
+            placeholder="1;213;Иванов И.И.;14-ЭО-25;Математика
+2;214;Петров П.П.;14-ЭО-25;Физика"></textarea>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-ghost btn-sm" onclick="clearPaste()">❌ Очистить</button>
+          <button class="btn btn-primary btn-sm" onclick="parsePastedText()">📥 Разобрать</button>
+        </div>
+        <div id="pastePreviewArea"></div>
+      </div>
+    </div>
+
     <div class="admin-section">
       <h3>📋 Занятия на день</h3>
       <div class="admin-list" id="adminList"></div>
@@ -449,18 +467,10 @@
         <textarea id="annInput" placeholder="Например: 16 октября занятия отменены из-за ремонта" rows="5"></textarea>
       </div>
       <div class="form-grid" style="margin-bottom:10px">
-        <div class="form-field">
-          <label>Показывать с</label>
-          <input type="datetime-local" id="annFrom">
-        </div>
-        <div class="form-field">
-          <label>Показывать до</label>
-          <input type="datetime-local" id="annUntil">
-        </div>
+        <div class="form-field"><label>Показывать с</label><input type="datetime-local" id="annFrom"></div>
+        <div class="form-field"><label>Показывать до</label><input type="datetime-local" id="annUntil"></div>
       </div>
-      <p style="font-size:11px;color:var(--muted);margin-bottom:12px">
-        Оставьте пустым — объявление будет видно бессрочно (до ручного удаления).
-      </p>
+      <p style="font-size:11px;color:var(--muted);margin-bottom:12px">Оставьте пустым — объявление будет видно бессрочно.</p>
       <div class="form-actions">
         <button class="btn btn-ghost btn-sm" onclick="clearAnnouncementAdmin()">🗑 Убрать</button>
         <button class="btn btn-primary btn-sm" onclick="saveAnnouncement()">📢 Опубликовать</button>
@@ -472,9 +482,7 @@
   <div id="admPanelSettings" style="display:none">
     <div class="admin-section" style="background: rgba(217,155,60,0.12);">
       <h3>🛠️ Режим технических работ</h3>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">
-        Когда режим включён — все посетители видят заглушку «Ведутся технические работы». Админы видят сайт как обычно.
-      </p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Когда режим включён — все посетители видят заглушку. Админы видят сайт как обычно.</p>
       <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,0.6);border:1px solid var(--border);border-radius:11px">
         <div>
           <b style="font-size:13px;color:var(--dark-green)" id="maintStatusLabel">Режим выключен</b><br>
@@ -498,7 +506,7 @@
     </div>
     <div class="admin-section" style="background: rgba(201,106,90,0.12);">
       <h3 style="color:var(--danger)">⚠️ Опасные действия</h3>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Действия необратимы. Используйте осторожно.</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Действия необратимы.</p>
       <div style="display:flex;flex-direction:column;gap:10px">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.6);border:1px solid var(--border);border-radius:11px">
           <div>
@@ -510,7 +518,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.6);border:1px solid var(--border);border-radius:11px">
           <div>
             <b style="font-size:13px;color:var(--danger)">Сбросить всё расписание</b><br>
-            <span style="font-size:11px;color:var(--muted)">Удалит все пары <b>всех</b> корпусов и недель</span>
+            <span style="font-size:11px;color:var(--muted)">Удалит все пары всех корпусов и недель</span>
           </div>
           <button class="btn btn-danger btn-sm" onclick="resetAll()">♻️ Сбросить</button>
         </div>
@@ -544,9 +552,7 @@
     <li>Пролистай и выбери <b>«На экран "Домой"»</b> <span style="font-size:16px">➕</span>.</li>
     <li>Нажми <b>«Добавить»</b> справа сверху.</li>
   </ol>
-  <p style="font-size:12px;color:var(--muted);margin-top:12px">
-    После этого сайт откроется как приложение — с иконкой и без адресной строки.
-  </p>
+  <p style="font-size:12px;color:var(--muted);margin-top:12px">После этого сайт откроется как приложение — с иконкой и без адресной строки.</p>
   <div class="form-actions" style="margin-top:14px">
     <button class="btn btn-primary" onclick="closeIosInstall()">Понятно</button>
   </div>
@@ -699,7 +705,7 @@ async function checkWeekRollover() {
     if (!stored) { localStorage.setItem(KEY, weekKey); return false; }
     await supabaseClient.from("schedule").delete().eq("week", 0);
     await supabaseClient.from("schedule").update({ week: 0 }).eq("week", 1);
-    await logAudit("week_rollover", { details: `Автосмена недели: ${stored} → ${weekKey}. Старые пары удалены, следующая неделя стала текущей.` });
+    await logAudit("week_rollover", { details: `Автосмена недели: ${stored} → ${weekKey}` });
     localStorage.setItem(KEY, weekKey);
     toast("🔄 Началась новая неделя — расписание обновлено");
     return true;
@@ -737,7 +743,7 @@ async function toggleMaintenance() {
   toast(newState ? "🛠️ Техработы включены" : "✅ Сайт снова открыт для всех");
 }
 function showMaintenanceScreen() {
-  document.body.innerHTML = `<div style="font-family:'Inter',-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:#f4f7f1;color:#2d3b26;background-image:radial-gradient(circle at 8% 12%,rgba(139,175,120,0.22) 0%,transparent 42%),radial-gradient(circle at 92% 8%,rgba(234,243,228,0.95) 0%,transparent 50%);"><div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(10px);border:1px solid rgba(139,175,120,0.28);border-radius:24px;padding:48px 36px;max-width:560px;width:100%;text-align:center;box-shadow:0 8px 24px rgba(74,107,61,0.08);"><div style="font-size:72px;margin-bottom:20px">🛠️</div><h1 style="font-family:'Playfair Display',Georgia,serif;font-size:32px;font-weight:700;color:#4a6b3d;margin-bottom:14px;line-height:1.2">Ведутся технические работы</h1><p style="font-size:16px;color:#7a8a72;line-height:1.6;margin-bottom:28px">Мы обновляем сайт расписания. Пожалуйста, зайдите позже — скоро всё заработает.</p><div style="display:inline-flex;align-items:center;gap:8px;background:#eaf3e4;color:#4a6b3d;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:0.3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8baf78"></span>Плановое обновление</div></div></div>`;
+  document.body.innerHTML = `<div style="font-family:'Inter',-apple-system,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:#f4f7f1;color:#2d3b26;background-image:radial-gradient(circle at 8% 12%,rgba(139,175,120,0.22) 0%,transparent 42%),radial-gradient(circle at 92% 8%,rgba(234,243,228,0.95) 0%,transparent 50%);"><div style="background:rgba(255,255,255,0.6);backdrop-filter:blur(10px);border:1px solid rgba(139,175,120,0.28);border-radius:24px;padding:48px 36px;max-width:560px;width:100%;text-align:center;box-shadow:0 8px 24px rgba(74,107,61,0.08);"><div style="font-size:72px;margin-bottom:20px">🛠️</div><h1 style="font-family:'Playfair Display',Georgia,serif;font-size:32px;font-weight:700;color:#4a6b3d;margin-bottom:14px;line-height:1.2">Ведутся технические работы</h1><p style="font-size:16px;color:#7a8a72;line-height:1.6;margin-bottom:28px">Мы обновляем сайт расписания. Пожалуйста, зайдите позже.</p><div style="display:inline-flex;align-items:center;gap:8px;background:#eaf3e4;color:#4a6b3d;padding:10px 18px;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:0.3px;"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#8baf78"></span>Плановое обновление</div></div></div>`;
 }
 
 /* ═══ АВТООБНОВЛЕНИЕ ═══ */
@@ -774,7 +780,7 @@ document.addEventListener("visibilitychange", async () => {
   if (document.visibilityState === "visible") { await loadScheduleFromSupabase(); renderAll(); }
 });
 
-/* ═══ УСТАНОВКА ═══ */
+/* ═══ УСТАНОВКА PWA ═══ */
 let deferredInstallPrompt = null;
 function isStandalonePWA() { return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true; }
 function isIOS() { return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
@@ -1046,7 +1052,7 @@ async function saveAnnouncement() {
     if (error) throw error;
     cachedAnnouncement = { text: payload.text, show_from: payload.show_from, show_until: payload.show_until };
     renderAnnouncement(); updateAnnPreview();
-    await logAudit("announcement_save", { details: "Объявление обновлено" + (payload.show_from || payload.show_until ? " (с периодом)" : "") });
+    await logAudit("announcement_save", { details: "Объявление обновлено" });
     toast("Объявление сохранено ✓");
   } catch (err) { toast("Ошибка: " + err.message, true); }
 }
@@ -1280,7 +1286,6 @@ function switchWeek(offset) {
   document.getElementById("weekBtn1").classList.toggle("active", offset === 1);
   renderAll();
 }
-function switchWeekFromAdmin(val) { switchWeek(parseInt(val)); renderAdminList(); }
 
 /* ═══ АДМИНКА ═══ */
 function openAdmin() {
@@ -1294,7 +1299,9 @@ function openAdmin() {
   document.getElementById("annUntil").value = isoToLocalInput(cachedAnnouncement.show_until);
   updateAnnPreview();
   loadBellsToAdmin(1, false); loadBellsToAdmin(2, false);
-  initAdminDaySelect(); renderAdminList();
+  initAdminDaySelect();
+  switchAddTab("excel");
+  renderAdminList();
   loadReports(); loadAllSubstitutions(); loadAdminStats();
   updateMaintUI();
   switchAdminTab("overview");
@@ -1305,6 +1312,16 @@ function switchAdminTab(tab) {
     const pan = document.getElementById("admPanel" + t.charAt(0).toUpperCase() + t.slice(1));
     if (btn) btn.classList.toggle("active", t === tab);
     if (pan) pan.style.display = t === tab ? "block" : "none";
+  });
+}
+function switchAddTab(tab) {
+  const tabs = { excel: "admAddTabExcel", paste: "admAddTabPaste" };
+  const panels = { excel: "admAddPanelExcel", paste: "admAddPanelPaste" };
+  Object.keys(tabs).forEach(k => {
+    const btn = document.getElementById(tabs[k]);
+    const pan = document.getElementById(panels[k]);
+    if (btn) btn.classList.toggle("active", k === tab);
+    if (pan) pan.style.display = k === tab ? "block" : "none";
   });
 }
 async function loadAdminStats() {
@@ -1340,23 +1357,6 @@ function renderAdminList() {
   if (!list.length) { el.innerHTML = '<p style="color:var(--muted);padding:14px;text-align:center;font-size:13px">Нет занятий</p>'; return; }
   el.innerHTML = list.map(p => `<div class="admin-item"><div class="info"><span class="pair-tag">${p.pair} пара</span><b>${escapeHtml(p.subject)}</b><br><span>каб. ${escapeHtml(p.room)} · гр. ${escapeHtml(p.group)} · ${escapeHtml(p.teacher)}</span></div><button class="btn btn-danger btn-sm" onclick="deletePair(${p.id})">Удалить</button></div>`).join("");
 }
-async function addPairManual() {
-  if (!isAdmin()) return;
-  const bldId = parseInt(document.getElementById("addBuilding").value);
-  const week = currentWeekOffset;
-  const day = document.getElementById("adminDaySelect").value;
-  const pair = parseInt(document.getElementById("addPair").value);
-  const room = document.getElementById("addRoom").value.trim();
-  const teacher = document.getElementById("addTeacher").value.trim();
-  const group = document.getElementById("addGroup").value.trim();
-  const subject = document.getElementById("addSubject").value.trim();
-  if (!room || !teacher || !group || !subject) { toast("Заполните все поля", true); return; }
-  const { error } = await supabaseClient.from("schedule").insert({ building: bldId, week, day, pair, room, teacher, grp: group, subject });
-  if (error) { toast("Ошибка: " + error.message, true); return; }
-  await logAudit("add_pair", { building: bldId, week, day, pair, room, teacher, group, subject });
-  ["addRoom","addTeacher","addGroup","addSubject"].forEach(id => document.getElementById(id).value = "");
-  await loadScheduleFromSupabase(); renderAdminList(); renderAll(); toast("Добавлено ✓");
-}
 async function deletePair(id) {
   if (!isAdmin()) return;
   if (!confirm("Удалить?")) return;
@@ -1367,7 +1367,7 @@ async function deletePair(id) {
   await loadScheduleFromSupabase(); renderAdminList(); renderAll(); toast("Удалено");
 }
 
-/* ═══ ЗАЯВКИ ОБ ОШИБКАХ ═══ */
+/* ═══ ЖАЛОБЫ ═══ */
 function openReport() {
   const filter = document.getElementById("groupFilter").value;
   const group = filter === "all" ? "" : filter;
@@ -1405,7 +1405,7 @@ async function loadReports() {
   el.innerHTML = data.map(r => {
     const date = new Date(r.created_at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
     const isNew = r.status === "new";
-    return `<div class="admin-item" style="${isNew ? "border-left:4px solid var(--danger);" : ""}"><div class="info"><b>${isNew ? "🔴" : "⚪"} ${escapeHtml(r.message.slice(0, 80))}${r.message.length > 80 ? "…" : ""}</b><br><span style="font-size:11px;color:var(--muted)">${date}${r.day ? " · " + escapeHtml(r.day) : ""}${r.group_name ? " · гр. " + escapeHtml(r.group_name) : ""}${r.contact ? " · 📞 " + escapeHtml(r.contact) : ""}</span>${r.message.length > 80 ? `<details style="margin-top:6px"><summary style="cursor:pointer;color:var(--accent);font-size:12px">Полностью</summary><div style="margin-top:6px;font-size:13px;white-space:pre-wrap">${escapeHtml(r.message)}</div></details>` : ""}</div><div style="display:flex;flex-direction:column;gap:6px">${isNew ? `<button class="btn btn-ghost btn-sm" onclick="markReportRead(${r.id})">✓</button>` : ""}<button class="btn btn-danger btn-sm" onclick="deleteReport(${r.id})">🗑</button></div></div>`;
+    return `<div class="admin-item" style="${isNew ? "border-left:4px solid var(--danger);" : ""}"><div class="info"><b>${isNew ? "🔴" : "⚪"} ${escapeHtml(r.message.slice(0, 80))}${r.message.length > 80 ? "…" : ""}</b><br><span style="font-size:11px;color:var(--muted)">${date}${r.day ? " · " + escapeHtml(r.day) : ""}${r.group_name ? " · гр. " + escapeHtml(r.group_name) : ""}${r.contact ? " · 📞 " + escapeHtml(r.contact) : ""}</span></div><div style="display:flex;flex-direction:column;gap:6px">${isNew ? `<button class="btn btn-ghost btn-sm" onclick="markReportRead(${r.id})">✓</button>` : ""}<button class="btn btn-danger btn-sm" onclick="deleteReport(${r.id})">🗑</button></div></div>`;
   }).join("");
 }
 async function markReportRead(id) { const { error } = await supabaseClient.from("reports").update({ status: "read" }).eq("id", id); if (error) { toast("Ошибка: " + error.message, true); return; } loadReports(); toast("Прочитано"); }
@@ -1447,7 +1447,7 @@ async function loadScheduleAudit() {
   const { data, error } = await supabaseClient.from("schedule_audit").select("*").order("created_at", { ascending: false }).limit(200);
   if (error) { el.innerHTML = `<p style="color:var(--danger);font-size:13px;padding:14px">Ошибка: ${escapeHtml(error.message)}</p>`; return; }
   if (!data || !data.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Записей нет</p>'; return; }
-  const lbl = { add_pair: "➕ Добавлено занятие", delete_pair: "➖ Удалено занятие", clear_day: "🧹 Очищен день", reset_all: "💥 Сброс всего расписания", upload_excel: "📊 Загружен файл", week_rollover: "🔄 Автосмена недели", maintenance_toggle: "🛠️ Режим техработ", announcement_save: "📌 Объявление сохранено", announcement_clear: "📌 Объявление убрано" };
+  const lbl = { add_pair: "➕ Добавлено занятие", delete_pair: "➖ Удалено занятие", clear_day: "🧹 Очищен день", reset_all: "💥 Сброс всего расписания", upload_excel: "📊 Загружен файл", upload_paste: "📋 Вставлено из буфера", week_rollover: "🔄 Автосмена недели", maintenance_toggle: "🛠️ Режим техработ", announcement_save: "📌 Объявление сохранено", announcement_clear: "📌 Объявление убрано" };
   el.innerHTML = `<div class="admin-list" style="max-height:520px">${data.map(r => {
     const date = new Date(r.created_at).toLocaleString("ru-RU", { day:"2-digit", month:"2-digit", year:"2-digit", hour:"2-digit", minute:"2-digit" });
     const bld = r.building === 2 ? "🏢 2 корпус" : r.building === 1 ? "🏢 1 корпус" : "";
@@ -1602,14 +1602,14 @@ function parseCSVText(text) {
 }
 function showPreview(list, filename) {
   const area = document.getElementById("previewArea");
-  const bldId = parseInt(document.getElementById("addBuilding").value);
+  const bldId = parseInt(document.getElementById("adminBuildingSelect").value);
   const rows = list.slice(0, 10).map(p => `<tr><td>${p.pair}</td><td>${escapeHtml(p.room)}</td><td>${escapeHtml(p.teacher)}</td><td>${escapeHtml(p.group)}</td><td>${escapeHtml(p.subject)}</td></tr>`).join("");
   area.innerHTML = `<p style="margin-top:14px;font-size:13px;color:var(--dark-green);font-weight:600">📄 ${escapeHtml(filename)} — ${list.length} строк → ${BUILDINGS.find(b => b.id === bldId).name}:</p><table class="preview-table"><thead><tr><th>Пара</th><th>Каб.</th><th>Преподаватель</th><th>Группа</th><th>Предмет</th></tr></thead><tbody>${rows}</tbody></table><div class="form-actions" style="margin-top:14px"><button class="btn btn-ghost" onclick="cancelPreview()">Отмена</button><button class="btn btn-primary" onclick="confirmUpload()">Добавить всё</button></div>`;
 }
 function cancelPreview() { parsedPreview = []; document.getElementById("previewArea").innerHTML = ""; }
 async function confirmUpload() {
   if (!parsedPreview.length || !isAdmin()) return;
-  const bldId = parseInt(document.getElementById("addBuilding").value);
+  const bldId = parseInt(document.getElementById("adminBuildingSelect").value);
   const day = document.getElementById("adminDaySelect").value;
   const rows = parsedPreview.map(p => ({ building: bldId, week: currentWeekOffset, day, pair: p.pair, room: p.room, teacher: p.teacher, grp: p.group, subject: p.subject }));
   const { error } = await supabaseClient.from("schedule").insert(rows);
@@ -1619,6 +1619,55 @@ async function confirmUpload() {
   parsedPreview = []; document.getElementById("previewArea").innerHTML = "";
   await loadScheduleFromSupabase(); renderAdminList(); renderAll();
   toast(`Загружено ${n} пар в ${BUILDINGS.find(b => b.id === bldId).name} ✓`);
+}
+
+/* ═══ ВСТАВКА ИЗ БУФЕРА ═══ */
+function clearPaste() {
+  document.getElementById("pasteArea").value = "";
+  document.getElementById("pastePreviewArea").innerHTML = "";
+  parsedPreview = [];
+}
+function parsePastedText() {
+  const raw = document.getElementById("pasteArea").value.trim();
+  if (!raw) { toast("Вставьте текст в поле", true); return; }
+  const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const parsed = [];
+  lines.forEach(line => {
+    let parts = line.split(";").map(s => s.trim());
+    if (parts.length !== 5) parts = line.split("\t").map(s => s.trim());
+    if (parts.length !== 5) parts = line.split(",").map(s => s.trim());
+    if (parts.length !== 5) return;
+    const pair = parseInt(parts[0]);
+    if (!pair || pair < 1 || pair > 8) return;
+    const [room, teacher, group, subject] = [parts[1], parts[2], parts[3], parts[4]];
+    if (!room || !teacher || !group || !subject) return;
+    parsed.push({ pair, room, teacher, group, subject });
+  });
+  if (!parsed.length) { toast("Не удалось разобрать строки. Проверьте формат.", true); return; }
+  parsedPreview = parsed;
+  renderPastePreview(parsed);
+}
+function renderPastePreview(list) {
+  const area = document.getElementById("pastePreviewArea");
+  const bldId = parseInt(document.getElementById("adminBuildingSelect").value);
+  const day = document.getElementById("adminDaySelect").value;
+  const week = currentWeekOffset === 0 ? "эта" : "следующая";
+  const rows = list.slice(0, 10).map(p => `<tr><td>${p.pair}</td><td>${escapeHtml(p.room)}</td><td>${escapeHtml(p.teacher)}</td><td>${escapeHtml(p.group)}</td><td>${escapeHtml(p.subject)}</td></tr>`).join("");
+  area.innerHTML = `<p style="margin-top:14px;font-size:13px;color:var(--dark-green);font-weight:600">📄 Распознано ${list.length} строк → ${BUILDINGS.find(b => b.id === bldId).name} · ${day} (${week} нед.):</p><table class="preview-table"><thead><tr><th>Пара</th><th>Каб.</th><th>Преподаватель</th><th>Группа</th><th>Предмет</th></tr></thead><tbody>${rows}</tbody></table>${list.length > 10 ? `<p style="font-size:11px;color:var(--muted);margin-top:6px">Показаны первые 10 из ${list.length}</p>` : ""}<div class="form-actions" style="margin-top:14px"><button class="btn btn-ghost" onclick="clearPaste()">Отмена</button><button class="btn btn-primary" onclick="confirmPasteUpload()">Добавить всё</button></div>`;
+}
+async function confirmPasteUpload() {
+  if (!parsedPreview.length || !isAdmin()) return;
+  const bldId = parseInt(document.getElementById("adminBuildingSelect").value);
+  const day = document.getElementById("adminDaySelect").value;
+  const rows = parsedPreview.map(p => ({ building: bldId, week: currentWeekOffset, day, pair: p.pair, room: p.room, teacher: p.teacher, grp: p.group, subject: p.subject }));
+  const { error } = await supabaseClient.from("schedule").insert(rows);
+  if (error) { toast("Ошибка: " + error.message, true); return; }
+  const n = parsedPreview.length;
+  await logAudit("upload_paste", { building: bldId, week: currentWeekOffset, day, details: `Вставлено ${n} строк из буфера` });
+  parsedPreview = [];
+  clearPaste();
+  await loadScheduleFromSupabase(); renderAdminList(); renderAll();
+  toast(`✅ Добавлено ${n} пар`);
 }
 
 function exportJSON() {
