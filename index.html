@@ -58,6 +58,17 @@
   .announcement .ann-close { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px; border: none; background: rgba(217,155,60,0.15); color: #8a5b13; cursor: pointer; font-size: 16px; }
   .changes-banner { display: none; background: linear-gradient(135deg, #ffe9e4 0%, #ffd9d0 100%); border: 1px solid rgba(201,106,90,0.35); border-radius: 16px; padding: 12px 16px; margin-bottom: 14px; box-shadow: var(--shadow); font-size: 14px; color: #8a3a2c; font-weight: 600; align-items: center; gap: 10px; }
   .changes-banner.show { display: flex; }
+  .week-switcher { display: flex; gap: 8px; margin-bottom: 14px; background: var(--glass); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 16px; padding: 10px; box-shadow: var(--shadow); justify-content: center; }
+  .week-btn { flex: 1; max-width: 240px; padding: 11px 16px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.6); border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+  .week-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(139,175,120,0.4); }
+  body.dark .week-btn { background: rgba(40,55,40,0.7); color: var(--muted); }
+  body.dark .week-btn.active { background: var(--accent); color: #fff; }
+  .btn { font-family: 'Inter', sans-serif; border: none; border-radius: 12px; padding: 11px 18px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(139,175,120,0.4); }
+  .btn-ghost { background: rgba(255,255,255,0.55); color: var(--dark-green); border: 1px solid var(--border); }
+  .btn-danger { background: rgba(201,106,90,0.12); color: var(--danger); border: 1px solid rgba(201,106,90,0.3); }
+  .btn-sm { padding: 7px 13px; font-size: 13px; border-radius: 9px; }
+  .theme-toggle { padding: 11px 14px; font-size: 16px; min-width: 44px; justify-content: center; }
   .days-nav { display: flex; gap: 8px; margin-bottom: 14px; background: var(--glass); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 16px; padding: 12px 10px; box-shadow: var(--shadow); justify-content: center; flex-wrap: wrap; }
   .day-btn { width: 46px; height: 46px; min-width: 46px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.6); border-radius: 50%; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1); padding: 0; position: relative; user-select: none; }
   .day-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 6px 16px rgba(139,175,120,0.55); transform: scale(1.08); }
@@ -140,7 +151,11 @@
   .toast.error { background: var(--danger); }
   body.dark { --accent: #7ba168; --accent-dark: #6b8f58; --dark-green: #a8c79a; --light-green: #2a3b22; --bg: #1a231a; --danger: #e07a6a; --text: #e8f0e3; --muted: #98a890; --glass: rgba(40,55,40,0.7); --border: rgba(139,175,120,0.3); --shadow: 0 8px 24px rgba(0,0,0,0.35);
     background-color: #1a231a;
-    background-image: radial-gradient(circle at 8% 12%, rgba(139,175,120,0.08) 0%, transparent 42%), radial-gradient(circle at 92% 8%, rgba(40,55,40,0.6) 0%, transparent 50%), radial-gradient(circle at 82% 92%, rgba(139,175,120,0.06) 0%, transparent 45%), radial-gradient(circle at 18% 82%, rgba(60,80,55,0.4) 0%, transparent 40%);
+    background-image:
+      radial-gradient(circle at 8% 12%, rgba(139,175,120,0.08) 0%, transparent 42%),
+      radial-gradient(circle at 92% 8%, rgba(40,55,40,0.6) 0%, transparent 50%),
+      radial-gradient(circle at 82% 92%, rgba(139,175,120,0.06) 0%, transparent 45%),
+      radial-gradient(circle at 18% 82%, rgba(60,80,55,0.4) 0%, transparent 40%);
   }
   body.dark h1, body.dark h2, body.dark h3 { color: var(--dark-green); }
   body.dark .day-btn { background: rgba(40,55,40,0.7); color: var(--muted); }
@@ -197,9 +212,12 @@
     <span>🔔</span>
     <span>На этой неделе есть замены. Проверьте расписание.</span>
   </div>
+
+  <!-- ВОЗВРАЩАЕМ БЛОК ПЕРЕКЛЮЧАТЕЛЯ (только текущая неделя) -->
   <div class="week-switcher">
-    <button class="week-btn active" id="weekBtn0">📅 Эта неделя</button>
+    <button class="week-btn active" id="weekBtn0">📅 Текущая неделя</button>
   </div>
+
   <nav class="days-nav" id="daysNav"></nav>
 
   <div class="tools-bar">
@@ -358,11 +376,31 @@
     </div>
 
     <div class="auth-tabs" style="margin-bottom:14px">
-      <button class="auth-tab active" id="admAddTabExcel" onclick="switchAddTab('excel')">📊 Excel / CSV</button>
+      <button class="auth-tab active" id="admAddTabManual" onclick="switchAddTab('manual')">✍️ Вручную</button>
+      <button class="auth-tab"        id="admAddTabExcel" onclick="switchAddTab('excel')">📊 Excel / CSV</button>
       <button class="auth-tab"        id="admAddTabPaste" onclick="switchAddTab('paste')">📋 Из буфера</button>
     </div>
 
-    <div id="admAddPanelExcel">
+    <div id="admAddPanelManual">
+      <div class="admin-section">
+        <h3>✍️ Добавить занятие</h3>
+        <div class="form-grid">
+          <div class="form-field"><label>Корпус</label>
+            <select id="addBuilding"><option value="1">🏢 1 корпус</option><option value="2">🏢 2 корпус</option></select>
+          </div>
+          <div class="form-field"><label>Пара</label>
+            <select id="addPair"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+          </div>
+          <div class="form-field"><label>Кабинет</label><input id="addRoom" placeholder="213"></div>
+          <div class="form-field"><label>Преподаватель</label><input id="addTeacher" placeholder="Иванов И.И."></div>
+          <div class="form-field"><label>Группа</label><input id="addGroup" placeholder="14-ЭО-25"></div>
+          <div class="form-field full"><label>Предмет</label><input id="addSubject" placeholder="Математика"></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="addPairManual()">Добавить</button></div>
+      </div>
+    </div>
+
+    <div id="admAddPanelExcel" style="display:none">
       <div class="admin-section">
         <h3>📊 Загрузить Excel / CSV</h3>
         <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
@@ -434,7 +472,7 @@
     <div class="admin-section" style="background: rgba(217,155,60,0.12);">
       <h3>📌 Объявление на главной</h3>
       <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
-        Показывается всем пользователям над расписанием. Можно указать период — объявление появится и исчезнет автоматически.
+        Показывается всем пользователям над расписанием. Можно указать период.
       </p>
       <div class="form-field full" style="margin-bottom:10px">
         <textarea id="annInput" placeholder="Например: 16 октября занятия отменены из-за ремонта" rows="5"></textarea>
@@ -527,12 +565,7 @@
   </ol>
   <p style="font-size:12px;color:var(--muted);margin-top:12px">После этого сайт откроется как приложение — с иконкой и без адресной строки.</p>
   <div class="form-actions" style="margin-top:14px">
-    <button class="btn btn-primary" onclick="closeIosInstall()">Понятно</button>
-  </div>
-</div></div>
-
-<div class="toast" id="toast"></div>
-<script>
+    <script>
 const SUPABASE_URL = "https://qmifdeokjxuhnbhvlcep.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_9O0ccc5oTIDfwNBWVkV-6Q_2p1Ois0m";
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -623,7 +656,7 @@ async function logLogin(action) {
   try { await supabaseClient.from("login_log").insert({ user_id: currentUser ? currentUser.id : null, email: currentUser ? currentUser.email : null, username: currentUser ? currentUser.username : null, action, user_agent: (navigator.userAgent || "").slice(0, 200) }); } catch (e) {}
 }
 async function logAudit(action, payload = {}) {
-  try { await supabaseClient.from("schedule_audit").insert({ user_id: currentUser ? currentUser.id : null, username: currentUser ? currentUser.username : null, action, building: payload.building ?? null, week: payload.week ?? null, day: payload.day ?? null, pair: payload.pair ?? null, room: payload.room ?? null, teacher: payload.teacher ?? null, group_name: payload.group ?? null, subject: payload.subject ?? null, details: payload.details ?? null }); } catch (e) {}
+  try { await supabaseClient.from("schedule_audit").insert({ user_id: currentUser ? currentUser.id : null, username: currentUser ? currentUser.username : null, action, building: payload.building ?? null, week: 0, day: payload.day ?? null, pair: payload.pair ?? null, room: payload.room ?? null, teacher: payload.teacher ?? null, group_name: payload.group ?? null, subject: payload.subject ?? null, details: payload.details ?? null }); } catch (e) {}
 }
 async function logSiteVisit() {
   try {
@@ -667,7 +700,6 @@ async function checkWeekendClear() {
     const todayStr = now.toISOString().slice(0, 10);
     const clearedDate = localStorage.getItem(CLEAR_KEY);
 
-    // В субботу очищаем расписание, если сегодня еще не очищали
     if (jsDay === 6 && clearedDate !== todayStr) {
       const { data } = await supabaseClient.from("schedule").select("id").limit(1);
       if (data && data.length > 0) {
@@ -1273,13 +1305,14 @@ function openAdmin() {
   document.getElementById("adminModal").classList.add("open");
   document.body.style.overflow = "hidden";
   document.getElementById("adminBuildingSelect").value = String(currentBuilding);
+  document.getElementById("addBuilding").value = String(currentBuilding);
   document.getElementById("annInput").value = cachedAnnouncement.text || "";
   document.getElementById("annFrom").value = isoToLocalInput(cachedAnnouncement.show_from);
   document.getElementById("annUntil").value = isoToLocalInput(cachedAnnouncement.show_until);
   updateAnnPreview();
   loadBellsToAdmin(1, false); loadBellsToAdmin(2, false);
   initAdminDaySelect();
-  switchAddTab("excel");
+  switchAddTab("manual");
   renderAdminList();
   loadReports(); loadAllSubstitutions(); loadAdminStats();
   updateMaintUI();
@@ -1294,8 +1327,8 @@ function switchAdminTab(tab) {
   });
 }
 function switchAddTab(tab) {
-  const tabs = { excel: "admAddTabExcel", paste: "admAddTabPaste" };
-  const panels = { excel: "admAddPanelExcel", paste: "admAddPanelPaste" };
+  const tabs = { manual: "admAddTabManual", excel: "admAddTabExcel", paste: "admAddTabPaste" };
+  const panels = { manual: "admAddPanelManual", excel: "admAddPanelExcel", paste: "admAddPanelPaste" };
   Object.keys(tabs).forEach(k => {
     const btn = document.getElementById(tabs[k]);
     const pan = document.getElementById(panels[k]);
@@ -1334,6 +1367,22 @@ function renderAdminList() {
   const el = document.getElementById("adminList");
   if (!list.length) { el.innerHTML = '<p style="color:var(--muted);padding:14px;text-align:center;font-size:13px">Нет занятий</p>'; return; }
   el.innerHTML = list.map(p => `<div class="admin-item"><div class="info"><span class="pair-tag">${p.pair} пара</span><b>${escapeHtml(p.subject)}</b><br><span>каб. ${escapeHtml(p.room)} · гр. ${escapeHtml(p.group)} · ${escapeHtml(p.teacher)}</span></div><button class="btn btn-danger btn-sm" onclick="deletePair(${p.id})">Удалить</button></div>`).join("");
+}
+async function addPairManual() {
+  if (!isAdmin()) return;
+  const bldId = parseInt(document.getElementById("addBuilding").value);
+  const day = document.getElementById("adminDaySelect").value;
+  const pair = parseInt(document.getElementById("addPair").value);
+  const room = document.getElementById("addRoom").value.trim();
+  const teacher = document.getElementById("addTeacher").value.trim();
+  const group = document.getElementById("addGroup").value.trim();
+  const subject = document.getElementById("addSubject").value.trim();
+  if (!room || !teacher || !group || !subject) { toast("Заполните все поля", true); return; }
+  const { error } = await supabaseClient.from("schedule").insert({ building: bldId, week: 0, day, pair, room, teacher, grp: group, subject });
+  if (error) { toast("Ошибка: " + error.message, true); return; }
+  await logAudit("add_pair", { building: bldId, week: 0, day, pair, room, teacher, group, subject });
+  ["addRoom","addTeacher","addGroup","addSubject"].forEach(id => document.getElementById(id).value = "");
+  await loadScheduleFromSupabase(); renderAdminList(); renderAll(); toast("Добавлено ✓");
 }
 async function deletePair(id) {
   if (!isAdmin()) return;
@@ -1733,3 +1782,8 @@ function toggleTheme() {
 </script>
 </body>
 </html>
+    <button class="btn btn-primary" onclick="closeIosInstall()">Понятно</button>
+  </div>
+</div></div>
+
+<div class="toast" id="toast"></div>
