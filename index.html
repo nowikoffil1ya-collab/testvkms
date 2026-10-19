@@ -58,17 +58,6 @@
   .announcement .ann-close { position: absolute; top: 10px; right: 10px; width: 26px; height: 26px; border-radius: 8px; border: none; background: rgba(217,155,60,0.15); color: #8a5b13; cursor: pointer; font-size: 16px; }
   .changes-banner { display: none; background: linear-gradient(135deg, #ffe9e4 0%, #ffd9d0 100%); border: 1px solid rgba(201,106,90,0.35); border-radius: 16px; padding: 12px 16px; margin-bottom: 14px; box-shadow: var(--shadow); font-size: 14px; color: #8a3a2c; font-weight: 600; align-items: center; gap: 10px; }
   .changes-banner.show { display: flex; }
-  .week-switcher { display: flex; gap: 8px; margin-bottom: 14px; background: var(--glass); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 16px; padding: 10px; box-shadow: var(--shadow); justify-content: center; }
-  .week-btn { flex: 1; max-width: 240px; padding: 11px 16px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.6); border-radius: 12px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-  .week-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 4px 12px rgba(139,175,120,0.4); }
-  body.dark .week-btn { background: rgba(40,55,40,0.7); color: var(--muted); }
-  body.dark .week-btn.active { background: var(--accent); color: #fff; }
-  .btn { font-family: 'Inter', sans-serif; border: none; border-radius: 12px; padding: 11px 18px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-  .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 4px 12px rgba(139,175,120,0.4); }
-  .btn-ghost { background: rgba(255,255,255,0.55); color: var(--dark-green); border: 1px solid var(--border); }
-  .btn-danger { background: rgba(201,106,90,0.12); color: var(--danger); border: 1px solid rgba(201,106,90,0.3); }
-  .btn-sm { padding: 7px 13px; font-size: 13px; border-radius: 9px; }
-  .theme-toggle { padding: 11px 14px; font-size: 16px; min-width: 44px; justify-content: center; }
   .days-nav { display: flex; gap: 8px; margin-bottom: 14px; background: var(--glass); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 16px; padding: 12px 10px; box-shadow: var(--shadow); justify-content: center; flex-wrap: wrap; }
   .day-btn { width: 46px; height: 46px; min-width: 46px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.6); border-radius: 50%; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1); padding: 0; position: relative; user-select: none; }
   .day-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 6px 16px rgba(139,175,120,0.55); transform: scale(1.08); }
@@ -151,11 +140,7 @@
   .toast.error { background: var(--danger); }
   body.dark { --accent: #7ba168; --accent-dark: #6b8f58; --dark-green: #a8c79a; --light-green: #2a3b22; --bg: #1a231a; --danger: #e07a6a; --text: #e8f0e3; --muted: #98a890; --glass: rgba(40,55,40,0.7); --border: rgba(139,175,120,0.3); --shadow: 0 8px 24px rgba(0,0,0,0.35);
     background-color: #1a231a;
-    background-image:
-      radial-gradient(circle at 8% 12%, rgba(139,175,120,0.08) 0%, transparent 42%),
-      radial-gradient(circle at 92% 8%, rgba(40,55,40,0.6) 0%, transparent 50%),
-      radial-gradient(circle at 82% 92%, rgba(139,175,120,0.06) 0%, transparent 45%),
-      radial-gradient(circle at 18% 82%, rgba(60,80,55,0.4) 0%, transparent 40%);
+    background-image: radial-gradient(circle at 8% 12%, rgba(139,175,120,0.08) 0%, transparent 42%), radial-gradient(circle at 92% 8%, rgba(40,55,40,0.6) 0%, transparent 50%), radial-gradient(circle at 82% 92%, rgba(139,175,120,0.06) 0%, transparent 45%), radial-gradient(circle at 18% 82%, rgba(60,80,55,0.4) 0%, transparent 40%);
   }
   body.dark h1, body.dark h2, body.dark h3 { color: var(--dark-green); }
   body.dark .day-btn { background: rgba(40,55,40,0.7); color: var(--muted); }
@@ -211,11 +196,6 @@
   <div class="changes-banner" id="changesBanner">
     <span>🔔</span>
     <span>На этой неделе есть замены. Проверьте расписание.</span>
-  </div>
-
-  <div class="week-switcher">
-    <button class="week-btn active" id="weekBtn0" onclick="switchWeek(0)">📅 Эта неделя</button>
-    <button class="week-btn" id="weekBtn1" onclick="switchWeek(1)">📅 Следующая неделя</button>
   </div>
 
   <nav class="days-nav" id="daysNav"></nav>
@@ -314,9 +294,6 @@
 <div class="modal-overlay" id="subsModal"><div class="modal">
   <div class="modal-header"><h2>📩 Заявка на замену</h2><button class="close-btn" onclick="closeSubstitution()">×</button></div>
   <div class="form-grid">
-    <div class="form-field"><label>Неделя</label>
-      <select id="subsWeek"><option value="0">Эта</option><option value="1">Следующая</option></select>
-    </div>
     <div class="form-field"><label>День</label><select id="subsDay"></select></div>
     <div class="form-field"><label>Пара</label><select id="subsPair"><option>1</option><option>2</option><option>3</option><option>4</option></select></div>
     <div class="form-field"><label>Группа</label><input id="subsGroup" placeholder="14-ЭО-25"></div>
@@ -350,7 +327,6 @@
       <h3>📊 Сводка</h3>
       <div id="adminStats" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
         <div class="admin-item"><div class="info"><b id="statPairs0">0</b><br><span>пар на этой неделе</span></div></div>
-        <div class="admin-item"><div class="info"><b id="statPairs1">0</b><br><span>пар на след. неделе</span></div></div>
         <div class="admin-item"><div class="info"><b id="statReports">0</b><br><span>жалоб</span></div></div>
         <div class="admin-item"><div class="info"><b id="statSubs">0</b><br><span>заявок на замену</span></div></div>
         <div class="admin-item"><div class="info"><b id="statVisits">0</b><br><span>заходов за 24 ч</span></div></div>
@@ -375,10 +351,6 @@
           <option value="1">🏢 1 корпус</option>
           <option value="2">🏢 2 корпус</option>
         </select>
-        <select id="adminWeekSelect" onchange="renderAdminList()">
-          <option value="0">📅 Эта неделя</option>
-          <option value="1">📅 Следующая неделя</option>
-        </select>
         <select id="adminDaySelect" onchange="renderAdminList()"></select>
       </div>
     </div>
@@ -392,7 +364,7 @@
       <div class="admin-section">
         <h3>📊 Загрузить Excel / CSV</h3>
         <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
-          Файл загрузится в корпус, неделю и день, выбранные сверху.<br>
+          Файл загрузится в корпус и день, выбранные сверху.<br>
           Формат: <code>пара;кабинет;преподаватель;группа;предмет</code>
         </p>
         <div class="dropzone" id="dropzone" onclick="document.getElementById('excelFile').click()">
@@ -411,7 +383,6 @@
         <p style="font-size:12px;color:var(--muted);margin-bottom:10px">
           Скопируйте строки из Excel, Google Sheets или введите вручную.<br>
           Формат: <code>пара;кабинет;преподаватель;группа;предмет</code>.
-          Разделитель — <code>;</code>, <code>,</code> или Tab.
         </p>
         <div class="form-field full" style="margin-bottom:10px">
           <textarea id="pasteArea" rows="6" style="font-family:monospace;font-size:13px"
@@ -435,7 +406,7 @@
   <div id="admPanelBells" style="display:none">
     <div class="admin-section" style="background: rgba(139,175,120,0.12);">
       <h3>📸 Звонки (1 корпус)</h3>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Формат: <code>Пн|1|09:05|10:25</code> — по одной строке на звонок</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Формат: <code>Пн|1|09:05|10:25</code></p>
       <div class="form-field full" style="margin-bottom:10px">
         <textarea id="bellsInput1" style="font-family:monospace;font-size:13px;resize:vertical;min-height:80px" rows="14"></textarea>
       </div>
@@ -446,7 +417,7 @@
     </div>
     <div class="admin-section" style="background: rgba(139,175,120,0.12);">
       <h3>📸 Звонки (2 корпус)</h3>
-      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Формат: <code>Пн|1|09:05|10:25</code> — по одной строке на звонок</p>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Формат: <code>Пн|1|09:05|10:25</code></p>
       <div class="form-field full" style="margin-bottom:10px">
         <textarea id="bellsInput2" style="font-family:monospace;font-size:13px;resize:vertical;min-height:80px" rows="14"></textarea>
       </div>
@@ -511,14 +482,14 @@
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.6);border:1px solid var(--border);border-radius:11px">
           <div>
             <b style="font-size:13px;color:var(--dark-green)">Очистить выбранный день</b><br>
-            <span style="font-size:11px;color:var(--muted)">Удалит все пары выбранного корпуса, недели и дня</span>
+            <span style="font-size:11px;color:var(--muted)">Удалит все пары выбранного корпуса и дня</span>
           </div>
           <button class="btn btn-danger btn-sm" onclick="clearDay()">🗑 Очистить</button>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:rgba(255,255,255,0.6);border:1px solid var(--border);border-radius:11px">
           <div>
             <b style="font-size:13px;color:var(--danger)">Сбросить всё расписание</b><br>
-            <span style="font-size:11px;color:var(--muted)">Удалит все пары всех корпусов и недель</span>
+            <span style="font-size:11px;color:var(--muted)">Удалит все пары всех корпусов</span>
           </div>
           <button class="btn btn-danger btn-sm" onclick="resetAll()">♻️ Сбросить</button>
         </div>
@@ -533,9 +504,9 @@
     <button class="close-btn" onclick="closeLogs()">×</button>
   </div>
   <div class="auth-tabs">
-    <button class="auth-tab active" id="logsTabLogin"     onclick="switchLogsTab('login')">👤 Входы</button>
-    <button class="auth-tab"        id="logsTabAudit"     onclick="switchLogsTab('audit')">📝 Аудит</button>
-    <button class="auth-tab"        id="logsTabApprovals" onclick="switchLogsTab('approvals')">✅ Approvals</button>
+    <button class="auth-tab active" id="logsTabLogin" onclick="switchLogsTab('login')">👤 Входы</button>
+    <button class="auth-tab" id="logsTabAudit" onclick="switchLogsTab('audit')">📝 Аудит</button>
+    <button class="auth-tab" id="logsTabApprovals" onclick="switchLogsTab('approvals')">✅ Approvals</button>
   </div>
   <div id="logsLoginPanel"></div>
   <div id="logsAuditPanel" style="display:none"></div>
@@ -571,10 +542,10 @@ const MONTHS = ["января","февраля","марта","апреля","м�
 const GROUP_PATTERN = /^[А-Яа-яA-Za-z0-9]+(-[А-Яа-яA-Za-z0-9]+)+$/;
 const THEME_KEY = "schedule_theme";
 const FAV_KEY = "schedule_favorite_group";
-const ANN_KEY = "schedule_announcement";
 const BELLS_KEY = "schedule_bells_by_building";
 const BUILDING_KEY = "schedule_current_building";
 const LAST_SEEN_KEY = "schedule_last_seen";
+const CLEAR_KEY = "schedule_cleared_date";
 
 const BUILDINGS = [{ id: 1, name: "🏢 1 корпус" }, { id: 2, name: "🏢 2 корпус" }];
 
@@ -632,8 +603,7 @@ function getSubjectStyle(subject) {
 
 let currentUser = null;
 let currentBuilding = parseInt(localStorage.getItem(BUILDING_KEY) || "1");
-let currentWeekOffset = 0;
-let schedulesByBuilding = { 1: { 0: [], 1: [] }, 2: { 0: [], 1: [] } };
+let schedulesByBuilding = { 1: { 0: [] }, 2: { 0: [] } };
 let currentDay = getTodayDay();
 let DAY_DATES = {};
 let parsedPreview = [];
@@ -670,13 +640,13 @@ function getEmptyDayMessage() {
   const MSG_PAST = "Занятие уже были";
   const jsDay = new Date().getDay();
   if (jsDay === 0 || jsDay === 6) return MSG_FORMING;
-  if (currentWeekOffset > 0) return MSG_FORMING;
-  if (currentWeekOffset < 0) return MSG_PAST;
+  
   const dayIdx = DAYS.indexOf(currentDay);
   const todayIdx = DAYS.indexOf(getTodayDay());
   if (dayIdx < 0 || todayIdx < 0) return MSG_FORMING;
   if (dayIdx < todayIdx) return MSG_PAST;
   if (dayIdx > todayIdx) return MSG_FORMING;
+  
   const bells = getBellsForDay(currentDay);
   if (!bells.length) return MSG_FORMING;
   const now = new Date();
@@ -687,32 +657,30 @@ function getEmptyDayMessage() {
   return MSG_FORMING;
 }
 
-/* ═══ АВТО-СМЕНА НЕДЕЛИ ═══ */
-function getISOWeekKey(d) {
-  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
-  const dayNum = date.getUTCDay() || 7;
-  date.setUTCDate(date.getUTCDate() + 4 - dayNum);
-  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
-  const week = Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
-  return date.getUTCFullYear() + "-W" + String(week).padStart(2, "0");
-}
-async function checkWeekRollover() {
+/* ═══ АВТО-ОЧИСТКА В СУББОТУ ═══ */
+async function checkWeekendClear() {
   try {
-    const KEY = "schedule_week_anchor";
-    const weekKey = getISOWeekKey(new Date());
-    const stored = localStorage.getItem(KEY);
-    if (stored === weekKey) return false;
-    if (!stored) { localStorage.setItem(KEY, weekKey); return false; }
-    await supabaseClient.from("schedule").delete().eq("week", 0);
-    await supabaseClient.from("schedule").update({ week: 0 }).eq("week", 1);
-    await logAudit("week_rollover", { details: `Автосмена недели: ${stored} → ${weekKey}` });
-    localStorage.setItem(KEY, weekKey);
-    toast("🔄 Началась новая неделя — расписание обновлено");
-    return true;
-  } catch (e) { console.error("Week rollover error:", e); return false; }
+    const now = new Date();
+    const jsDay = now.getDay(); // 6 = суббота
+    const todayStr = now.toISOString().slice(0, 10);
+    const clearedDate = localStorage.getItem(CLEAR_KEY);
+
+    // В субботу очищаем расписание, если сегодня еще не очищали
+    if (jsDay === 6 && clearedDate !== todayStr) {
+      const { data } = await supabaseClient.from("schedule").select("id").limit(1);
+      if (data && data.length > 0) {
+        await supabaseClient.from("schedule").delete().neq("id", 0);
+        await logAudit("week_rollover", { details: "Расписание очищено на выходные" });
+        toast("🧹 Расписание очищено на выходные");
+      }
+      localStorage.setItem(CLEAR_KEY, todayStr);
+      return true;
+    }
+    return false;
+  } catch (e) { console.error("Clear weekend error:", e); return false; }
 }
 
-/* ═══ ТЕХРАБОТЫ (через Supabase) ═══ */
+/* ═══ ТЕХРАБОТЫ ═══ */
 async function loadMaintenanceFromDB() {
   try {
     const { data, error } = await supabaseClient.from("settings").select("value").eq("key", "maintenance").maybeSingle();
@@ -833,27 +801,25 @@ function getTodayDay() {
   const map = { 1: "Понедельник", 2: "Вторник", 3: "Среда", 4: "Четверг", 5: "Пятница" };
   return map[jsDay] || "Понедельник";
 }
-function buildDayDates(weekOffset = 0) {
+function buildDayDates() {
   const today = new Date(); const jsDay = today.getDay();
   const monday = new Date(today);
   if (jsDay === 0) monday.setDate(today.getDate() + 1);
   else if (jsDay === 6) monday.setDate(today.getDate() + 2);
   else monday.setDate(today.getDate() - (jsDay - 1));
-  monday.setDate(monday.getDate() + weekOffset * 7);
   const dates = {};
   DAYS.forEach((d, i) => { const dt = new Date(monday); dt.setDate(monday.getDate() + i); dates[d] = `${dt.getDate()} ${MONTHS[dt.getMonth()]}`; });
   return dates;
 }
 function isAdmin() { return currentUser && currentUser.role === "admin"; }
 function isTeacher() { return currentUser && (currentUser.role === "teacher" || currentUser.role === "admin"); }
-function getWeekList() { return schedulesByBuilding[currentBuilding][currentWeekOffset] || []; }
-function getDateObj(dayName, weekOffset) {
+function getWeekList() { return schedulesByBuilding[currentBuilding][0] || []; }
+function getDateObj(dayName) {
   const today = new Date(); const jsDay = today.getDay();
   const monday = new Date(today);
   if (jsDay === 0) monday.setDate(today.getDate() + 1);
   else if (jsDay === 6) monday.setDate(today.getDate() + 2);
   else monday.setDate(today.getDate() - (jsDay - 1));
-  monday.setDate(monday.getDate() + weekOffset * 7);
   monday.setDate(monday.getDate() + DAYS.indexOf(dayName));
   return monday;
 }
@@ -1008,13 +974,12 @@ function openInBrowser() {
 
 /* ═══ РАСПИСАНИЕ ═══ */
 async function loadScheduleFromSupabase() {
-  const { data, error } = await supabaseClient.from("schedule").select("*").order("week", { ascending: true }).order("pair", { ascending: true });
+  const { data, error } = await supabaseClient.from("schedule").select("*").order("pair", { ascending: true });
   if (error) { toast("Ошибка загрузки: " + error.message, true); return; }
-  schedulesByBuilding = { 1: { 0: [], 1: [] }, 2: { 0: [], 1: [] } };
+  schedulesByBuilding = { 1: { 0: [] }, 2: { 0: [] } };
   (data || []).forEach(row => {
     const bld = (row.building === 2) ? 2 : 1;
-    const w = row.week === 1 ? 1 : 0;
-    schedulesByBuilding[bld][w].push({ id: row.id, building: bld, week: w, day: row.day, pair: row.pair, room: row.room, teacher: row.teacher, group: row.grp, subject: row.subject });
+    schedulesByBuilding[bld][0].push({ id: row.id, building: bld, week: 0, day: row.day, pair: row.pair, room: row.room, teacher: row.teacher, group: row.grp, subject: row.subject });
   });
 }
 function switchBuilding(id) {
@@ -1188,7 +1153,7 @@ function exportICS() {
   const lines = ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Schedule//VKMS//RU","CALSCALE:GREGORIAN"];
   const dtstamp = new Date().toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
   list.forEach(p => {
-    const date = getDateObj(p.day, currentWeekOffset);
+    const date = getDateObj(p.day);
     const bell = getBellsForDay(p.day).find(b => b.n === p.pair) || { start: "08:30", end: "10:00" };
     const [sh, sm] = bell.start.split(":").map(Number);
     const [eh, em] = bell.end.split(":").map(Number);
@@ -1217,7 +1182,7 @@ function goToToday() {
   const jsDay = new Date().getDay();
   if (jsDay === 0 || jsDay === 6) { toast("Сегодня выходной"); currentDay = "Понедельник"; }
   else currentDay = getTodayDay();
-  switchWeek(0); updateFavButton(); renderAll();
+  updateFavButton(); renderAll();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -1257,7 +1222,7 @@ function renderCards(list) {
   const filterGroup = document.getElementById("groupFilter").value;
   const showGroup = filterGroup === "all";
   const bells = getBellsForDay(currentDay);
-  const isToday = currentDay === getTodayDay() && currentWeekOffset === 0;
+  const isToday = currentDay === getTodayDay();
   const currentPair = isToday ? getCurrentPair(currentDay) : null;
   if (!list.length) { el.innerHTML = `<div class="empty-state"><span class="emoji">🌿</span><p>${escapeHtml(getEmptyDayMessage())}</p></div>`; return; }
   el.innerHTML = list.map(p => {
@@ -1299,13 +1264,6 @@ function renderHeader() {
   document.getElementById("headerCount").textContent = n ? `· ${n} занятий` : "";
 }
 function renderAll() { renderDaysNav(); renderHeader(); updateGroupFilter(); updateTeacherFilter(); const list = getFilteredList(); renderCards(list); renderTable(list); }
-function switchWeek(offset) {
-  currentWeekOffset = offset;
-  DAY_DATES = buildDayDates(offset);
-  document.getElementById("weekBtn0").classList.toggle("active", offset === 0);
-  document.getElementById("weekBtn1").classList.toggle("active", offset === 1);
-  renderAll();
-}
 
 /* ═══ АДМИНКА ═══ */
 function openAdmin() {
@@ -1313,7 +1271,6 @@ function openAdmin() {
   document.getElementById("adminModal").classList.add("open");
   document.body.style.overflow = "hidden";
   document.getElementById("adminBuildingSelect").value = String(currentBuilding);
-  document.getElementById("adminWeekSelect").value = String(currentWeekOffset);
   document.getElementById("annInput").value = cachedAnnouncement.text || "";
   document.getElementById("annFrom").value = isoToLocalInput(cachedAnnouncement.show_from);
   document.getElementById("annUntil").value = isoToLocalInput(cachedAnnouncement.show_until);
@@ -1347,9 +1304,9 @@ function switchAddTab(tab) {
 async function loadAdminStats() {
   try {
     const setStat = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-    let w0 = 0, w1 = 0;
-    Object.values(schedulesByBuilding).forEach(b => { w0 += (b[0] || []).length; w1 += (b[1] || []).length; });
-    setStat("statPairs0", w0); setStat("statPairs1", w1);
+    let w0 = 0;
+    Object.values(schedulesByBuilding).forEach(b => { w0 += (b[0] || []).length; });
+    setStat("statPairs0", w0);
     const { count: repCount } = await supabaseClient.from("reports").select("*", { count: "exact", head: true }).eq("status", "new");
     setStat("statReports", repCount || 0);
     const { count: subCount } = await supabaseClient.from("substitutions").select("*", { count: "exact", head: true }).eq("status", "pending");
@@ -1371,8 +1328,7 @@ function initAdminDaySelect() {
 function renderAdminList() {
   const day = document.getElementById("adminDaySelect").value;
   const bldId = parseInt(document.getElementById("adminBuildingSelect").value);
-  const week = parseInt(document.getElementById("adminWeekSelect").value);
-  const list = (schedulesByBuilding[bldId][week] || []).filter(p => p.day === day).sort((a, b) => a.pair - b.pair);
+  const list = (schedulesByBuilding[bldId][0] || []).filter(p => p.day === day).sort((a, b) => a.pair - b.pair);
   const el = document.getElementById("adminList");
   if (!list.length) { el.innerHTML = '<p style="color:var(--muted);padding:14px;text-align:center;font-size:13px">Нет занятий</p>'; return; }
   el.innerHTML = list.map(p => `<div class="admin-item"><div class="info"><span class="pair-tag">${p.pair} пара</span><b>${escapeHtml(p.subject)}</b><br><span>каб. ${escapeHtml(p.room)} · гр. ${escapeHtml(p.group)} · ${escapeHtml(p.teacher)}</span></div><button class="btn btn-danger btn-sm" onclick="deletePair(${p.id})">Удалить</button></div>`).join("");
@@ -1383,7 +1339,7 @@ async function deletePair(id) {
   const { data: found } = await supabaseClient.from("schedule").select("*").eq("id", id).maybeSingle();
   const { error } = await supabaseClient.from("schedule").delete().eq("id", id);
   if (error) { toast("Ошибка: " + error.message, true); return; }
-  if (found) await logAudit("delete_pair", { building: found.building, week: found.week, day: found.day, pair: found.pair, room: found.room, teacher: found.teacher, group: found.grp, subject: found.subject });
+  if (found) await logAudit("delete_pair", { building: found.building, week: 0, day: found.day, pair: found.pair, room: found.room, teacher: found.teacher, group: found.grp, subject: found.subject });
   await loadScheduleFromSupabase(); renderAdminList(); renderAll(); toast("Удалено");
 }
 
@@ -1391,7 +1347,7 @@ async function deletePair(id) {
 function openReport() {
   const filter = document.getElementById("groupFilter").value;
   const group = filter === "all" ? "" : filter;
-  const parts = [`🏢 ${BUILDINGS.find(b => b.id === currentBuilding).name}`, `📅 ${currentDay}`, `🗓 ${currentWeekOffset === 0 ? "эта" : "следующая"} неделя`];
+  const parts = [`🏢 ${BUILDINGS.find(b => b.id === currentBuilding).name}`, `📅 ${currentDay}`];
   if (group) parts.push(`👥 Группа: ${group}`);
   document.getElementById("reportContext").innerHTML = "Контекст:<br>" + parts.join(" · ");
   document.getElementById("reportMessage").value = ""; document.getElementById("reportContact").value = "";
@@ -1407,7 +1363,7 @@ async function sendReport() {
   const filter = document.getElementById("groupFilter").value;
   const group = filter === "all" ? "" : filter;
   try {
-    const { error } = await supabaseClient.from("reports").insert({ message: msg, contact: contact || null, page: window.location.href, day: currentDay, week: currentWeekOffset, group_name: group || null, user_email: currentUser ? currentUser.email : null });
+    const { error } = await supabaseClient.from("reports").insert({ message: msg, contact: contact || null, page: window.location.href, day: currentDay, week: 0, group_name: group || null, user_email: currentUser ? currentUser.email : null });
     if (error) throw error;
     closeReport(); toast("✅ Спасибо, сообщение отправлено");
   } catch (err) { toast("Ошибка: " + err.message, true); }
@@ -1471,8 +1427,7 @@ async function loadScheduleAudit() {
   el.innerHTML = `<div class="admin-list" style="max-height:520px">${data.map(r => {
     const date = new Date(r.created_at).toLocaleString("ru-RU", { day:"2-digit", month:"2-digit", year:"2-digit", hour:"2-digit", minute:"2-digit" });
     const bld = r.building === 2 ? "🏢 2 корпус" : r.building === 1 ? "🏢 1 корпус" : "";
-    const wk = r.week === 1 ? "следующая" : r.week === 0 ? "эта" : "";
-    const head = [bld, r.day, wk ? `(${wk} нед.)` : ""].filter(Boolean).join(" · ");
+    const head = [bld, r.day].filter(Boolean).join(" · ");
     const subject = r.subject ? `<br><span>📚 ${escapeHtml(r.subject)}</span>` : "";
     const details = (r.pair || r.room || r.teacher || r.group_name) ? `<br><span style="font-size:11px;color:var(--muted)">${r.pair ? r.pair + " пара · " : ""}${r.room ? "каб. " + escapeHtml(r.room) + " · " : ""}${r.group_name ? "гр. " + escapeHtml(r.group_name) + " · " : ""}${r.teacher ? escapeHtml(r.teacher) : ""}</span>` : "";
     return `<div class="admin-item"><div class="info"><b>${lbl[r.action] || escapeHtml(r.action)}</b> · 👤 ${escapeHtml(r.username || "—")}<br><span style="font-size:11px">${head}</span>${subject}${details}${r.details ? `<br><span style="font-size:11px;color:var(--muted)">💬 ${escapeHtml(r.details)}</span>` : ""}<br><span style="font-size:11px;color:var(--muted)">${date}</span></div></div>`;
@@ -1488,7 +1443,7 @@ async function loadApprovalsLog() {
     const date = r.reviewed_at ? new Date(r.reviewed_at).toLocaleString("ru-RU", { day:"2-digit", month:"2-digit", year:"2-digit", hour:"2-digit", minute:"2-digit" }) : "—";
     const ok = r.status === "approved";
     const badge = ok ? '<span style="color:#3d9970;font-weight:700">✅ Одобрено</span>' : '<span style="color:#c96a5a;font-weight:700">❌ Отклонено</span>';
-    return `<div class="admin-item" style="${ok ? "border-left:4px solid #3d9970;" : "border-left:4px solid var(--danger);"}"><div class="info"><b>${badge}</b> · 🧑‍🏫 заявка от ${escapeHtml(r.teacher_name || "—")}<br><span style="font-size:11px">${escapeHtml(r.day || "")}${r.week === 1 ? " (следующая)" : ""}, ${r.pair || ""} пара · гр. ${escapeHtml(r.group_name || "—")}</span><br><span style="font-size:11px">${r.original_teacher ? "↪ " + escapeHtml(r.original_teacher) + " → " : ""}<b>${escapeHtml(r.new_teacher || "—")}</b>${r.room ? ", каб. " + escapeHtml(r.room) : ""}</span>${r.comment ? `<br><span style="font-size:11px;color:var(--muted)">💬 ${escapeHtml(r.comment)}</span>` : ""}<br><span style="font-size:11px;color:var(--muted)">Рассмотрено: ${date}</span></div></div>`;
+    return `<div class="admin-item" style="${ok ? "border-left:4px solid #3d9970;" : "border-left:4px solid var(--danger);"}"><div class="info"><b>${badge}</b> · 🧑‍🏫 заявка от ${escapeHtml(r.teacher_name || "—")}<br><span style="font-size:11px">${escapeHtml(r.day || "")}, ${r.pair || ""} пара · гр. ${escapeHtml(r.group_name || "—")}</span><br><span style="font-size:11px">${r.original_teacher ? "↪ " + escapeHtml(r.original_teacher) + " → " : ""}<b>${escapeHtml(r.new_teacher || "—")}</b>${r.room ? ", каб. " + escapeHtml(r.room) : ""}</span>${r.comment ? `<br><span style="font-size:11px;color:var(--muted)">💬 ${escapeHtml(r.comment)}</span>` : ""}<br><span style="font-size:11px;color:var(--muted)">Рассмотрено: ${date}</span></div></div>`;
   }).join("")}</div>`;
 }
 
@@ -1498,14 +1453,12 @@ function openSubstitution() {
   const daySel = document.getElementById("subsDay");
   daySel.innerHTML = DAYS.map(d => `<option value="${d}">${d}</option>`).join("");
   daySel.value = currentDay;
-  document.getElementById("subsWeek").value = String(currentWeekOffset);
   document.getElementById("subsModal").classList.add("open");
   loadMySubstitutions();
 }
 function closeSubstitution() { document.getElementById("subsModal").classList.remove("open"); }
 async function sendSubstitution() {
   if (!isTeacher()) return;
-  const week = parseInt(document.getElementById("subsWeek").value);
   const day = document.getElementById("subsDay").value;
   const pair = parseInt(document.getElementById("subsPair").value);
   const group = document.getElementById("subsGroup").value.trim();
@@ -1513,9 +1466,9 @@ async function sendSubstitution() {
   const newTeacher = document.getElementById("subsNewTeacher").value.trim();
   const comment = document.getElementById("subsComment").value.trim();
   if (!group || !newTeacher) { toast("Заполните группу и кто заменяет", true); return; }
-  const original = (schedulesByBuilding[currentBuilding][week] || []).find(p => p.day === day && p.pair === pair && p.group === group);
+  const original = (schedulesByBuilding[currentBuilding][0] || []).find(p => p.day === day && p.pair === pair && p.group === group);
   try {
-    const { error } = await supabaseClient.from("substitutions").insert({ teacher_id: currentUser.id, teacher_name: currentUser.username, building: currentBuilding, week, day, pair, group_name: group, room: room || null, original_teacher: original ? original.teacher : null, new_teacher: newTeacher, comment: comment || null });
+    const { error } = await supabaseClient.from("substitutions").insert({ teacher_id: currentUser.id, teacher_name: currentUser.username, building: currentBuilding, week: 0, day, pair, group_name: group, room: room || null, original_teacher: original ? original.teacher : null, new_teacher: newTeacher, comment: comment || null });
     if (error) throw error;
     ["subsGroup","subsRoom","subsNewTeacher","subsComment"].forEach(id => document.getElementById(id).value = "");
     toast("✅ Заявка отправлена"); loadMySubstitutions();
@@ -1546,14 +1499,14 @@ async function loadAllSubstitutions() {
     const date = new Date(r.created_at).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
     const badge = r.status === "approved" ? '<span style="color:#3d9970;font-weight:700">✅ Одобрено</span>' : r.status === "rejected" ? '<span style="color:#c96a5a;font-weight:700">❌ Отклонено</span>' : '<span style="color:#d99b3c;font-weight:700">⏳ Ожидает</span>';
     const isPending = r.status === "pending";
-    return `<div class="admin-item" style="${isPending ? "border-left:4px solid var(--warn);" : ""}"><div class="info"><b>🧑‍🏫 ${escapeHtml(r.teacher_name)}</b> · ${date}<br><span>${escapeHtml(r.day)}${r.week === 1 ? " (следующая)" : ""}, ${r.pair} пара · гр. ${escapeHtml(r.group_name || "—")}</span><br><span>${r.original_teacher ? "↪ " + escapeHtml(r.original_teacher) + " → " : ""}<b>${escapeHtml(r.new_teacher)}</b>${r.room ? ", каб. " + escapeHtml(r.room) : ""}</span><br>${r.comment ? `<span style="color:var(--muted)">💬 ${escapeHtml(r.comment)}</span><br>` : ""}${badge}</div>${isPending ? `<div style="display:flex;flex-direction:column;gap:6px"><button class="btn btn-primary btn-sm" onclick="approveSubstitution(${r.id})">✓</button><button class="btn btn-danger btn-sm" onclick="rejectSubstitution(${r.id})">✗</button></div>` : ""}</div>`;
+    return `<div class="admin-item" style="${isPending ? "border-left:4px solid var(--warn);" : ""}"><div class="info"><b>🧑‍🏫 ${escapeHtml(r.teacher_name)}</b> · ${date}<br><span>${escapeHtml(r.day)}, ${r.pair} пара · гр. ${escapeHtml(r.group_name || "—")}</span><br><span>${r.original_teacher ? "↪ " + escapeHtml(r.original_teacher) + " → " : ""}<b>${escapeHtml(r.new_teacher)}</b>${r.room ? ", каб. " + escapeHtml(r.room) : ""}</span><br>${r.comment ? `<span style="color:var(--muted)">💬 ${escapeHtml(r.comment)}</span><br>` : ""}${badge}</div>${isPending ? `<div style="display:flex;flex-direction:column;gap:6px"><button class="btn btn-primary btn-sm" onclick="approveSubstitution(${r.id})">✓</button><button class="btn btn-danger btn-sm" onclick="rejectSubstitution(${r.id})">✗</button></div>` : ""}</div>`;
   }).join("");
 }
 async function approveSubstitution(id) {
   if (!isAdmin()) return;
   const { data, error: err1 } = await supabaseClient.from("substitutions").select("*").eq("id", id).single();
   if (err1 || !data) { toast("Ошибка чтения", true); return; }
-  const { error: err2 } = await supabaseClient.from("schedule").insert({ building: data.building || currentBuilding, week: data.week, day: data.day, pair: data.pair, room: data.room || "—", teacher: data.new_teacher, grp: data.group_name, subject: "🔁 Замена: " + (data.comment || data.new_teacher) });
+  const { error: err2 } = await supabaseClient.from("schedule").insert({ building: data.building || currentBuilding, week: 0, day: data.day, pair: data.pair, room: data.room || "—", teacher: data.new_teacher, grp: data.group_name, subject: "🔁 Замена: " + (data.comment || data.new_teacher) });
   if (err2) { toast("Ошибка: " + err2.message, true); return; }
   const { error: err3 } = await supabaseClient.from("substitutions").update({ status: "approved", reviewed_by: currentUser.id, reviewed_at: new Date().toISOString() }).eq("id", id);
   if (err3) { toast("Ошибка: " + err3.message, true); return; }
@@ -1631,11 +1584,11 @@ async function confirmUpload() {
   if (!parsedPreview.length || !isAdmin()) return;
   const bldId = parseInt(document.getElementById("adminBuildingSelect").value);
   const day = document.getElementById("adminDaySelect").value;
-  const rows = parsedPreview.map(p => ({ building: bldId, week: currentWeekOffset, day, pair: p.pair, room: p.room, teacher: p.teacher, grp: p.group, subject: p.subject }));
+  const rows = parsedPreview.map(p => ({ building: bldId, week: 0, day, pair: p.pair, room: p.room, teacher: p.teacher, grp: p.group, subject: p.subject }));
   const { error } = await supabaseClient.from("schedule").insert(rows);
   if (error) { toast("Ошибка: " + error.message, true); return; }
   const n = parsedPreview.length;
-  await logAudit("upload_excel", { building: bldId, week: currentWeekOffset, day, details: `Загружено ${n} строк из файла` });
+  await logAudit("upload_excel", { building: bldId, week: 0, day, details: `Загружено ${n} строк из файла` });
   parsedPreview = []; document.getElementById("previewArea").innerHTML = "";
   await loadScheduleFromSupabase(); renderAdminList(); renderAll();
   toast(`Загружено ${n} пар в ${BUILDINGS.find(b => b.id === bldId).name} ✓`);
@@ -1671,19 +1624,18 @@ function renderPastePreview(list) {
   const area = document.getElementById("pastePreviewArea");
   const bldId = parseInt(document.getElementById("adminBuildingSelect").value);
   const day = document.getElementById("adminDaySelect").value;
-  const week = currentWeekOffset === 0 ? "эта" : "следующая";
   const rows = list.slice(0, 10).map(p => `<tr><td>${p.pair}</td><td>${escapeHtml(p.room)}</td><td>${escapeHtml(p.teacher)}</td><td>${escapeHtml(p.group)}</td><td>${escapeHtml(p.subject)}</td></tr>`).join("");
-  area.innerHTML = `<p style="margin-top:14px;font-size:13px;color:var(--dark-green);font-weight:600">📄 Распознано ${list.length} строк → ${BUILDINGS.find(b => b.id === bldId).name} · ${day} (${week} нед.):</p><table class="preview-table"><thead><tr><th>Пара</th><th>Каб.</th><th>Преподаватель</th><th>Группа</th><th>Предмет</th></tr></thead><tbody>${rows}</tbody></table>${list.length > 10 ? `<p style="font-size:11px;color:var(--muted);margin-top:6px">Показаны первые 10 из ${list.length}</p>` : ""}<div class="form-actions" style="margin-top:14px"><button class="btn btn-ghost" onclick="clearPaste()">Отмена</button><button class="btn btn-primary" onclick="confirmPasteUpload()">Добавить всё</button></div>`;
+  area.innerHTML = `<p style="margin-top:14px;font-size:13px;color:var(--dark-green);font-weight:600">📄 Распознано ${list.length} строк → ${BUILDINGS.find(b => b.id === bldId).name} · ${day}:</p><table class="preview-table"><thead><tr><th>Пара</th><th>Каб.</th><th>Преподаватель</th><th>Группа</th><th>Предмет</th></tr></thead><tbody>${rows}</tbody></table>${list.length > 10 ? `<p style="font-size:11px;color:var(--muted);margin-top:6px">Показаны первые 10 из ${list.length}</p>` : ""}<div class="form-actions" style="margin-top:14px"><button class="btn btn-ghost" onclick="clearPaste()">Отмена</button><button class="btn btn-primary" onclick="confirmPasteUpload()">Добавить всё</button></div>`;
 }
 async function confirmPasteUpload() {
   if (!parsedPreview.length || !isAdmin()) return;
   const bldId = parseInt(document.getElementById("adminBuildingSelect").value);
   const day = document.getElementById("adminDaySelect").value;
-  const rows = parsedPreview.map(p => ({ building: bldId, week: currentWeekOffset, day, pair: p.pair, room: p.room, teacher: p.teacher, grp: p.group, subject: p.subject }));
+  const rows = parsedPreview.map(p => ({ building: bldId, week: 0, day, pair: p.pair, room: p.room, teacher: p.teacher, grp: p.group, subject: p.subject }));
   const { error } = await supabaseClient.from("schedule").insert(rows);
   if (error) { toast("Ошибка: " + error.message, true); return; }
   const n = parsedPreview.length;
-  await logAudit("upload_paste", { building: bldId, week: currentWeekOffset, day, details: `Вставлено ${n} строк из буфера` });
+  await logAudit("upload_paste", { building: bldId, week: 0, day, details: `Вставлено ${n} строк из буфера` });
   parsedPreview = []; clearPaste();
   await loadScheduleFromSupabase(); renderAdminList(); renderAll();
   toast(`✅ Добавлено ${n} пар`);
@@ -1697,12 +1649,11 @@ function exportJSON() {
 async function clearDay() {
   if (!isAdmin()) return;
   const bldId = parseInt(document.getElementById("adminBuildingSelect").value);
-  const week = parseInt(document.getElementById("adminWeekSelect").value);
   const day = document.getElementById("adminDaySelect").value;
   if (!confirm(`Очистить "${day}" (${BUILDINGS.find(b => b.id === bldId).name})?`)) return;
-  const { error } = await supabaseClient.from("schedule").delete().eq("building", bldId).eq("week", week).eq("day", day);
+  const { error } = await supabaseClient.from("schedule").delete().eq("building", bldId).eq("week", 0).eq("day", day);
   if (error) { toast("Ошибка: " + error.message, true); return; }
-  await logAudit("clear_day", { building: bldId, week, day });
+  await logAudit("clear_day", { building: bldId, week: 0, day });
   await loadScheduleFromSupabase(); renderAdminList(); renderAll(); toast("Очищено");
 }
 async function resetAll() {
@@ -1743,7 +1694,7 @@ function toggleTheme() {
 
 (async function init() {
   applyTheme(localStorage.getItem(THEME_KEY) || "light");
-  DAY_DATES = buildDayDates(currentWeekOffset);
+  DAY_DATES = buildDayDates();
   currentDay = getTodayDay();
   document.getElementById("bldBtn1").classList.toggle("active", currentBuilding === 1);
   document.getElementById("bldBtn2").classList.toggle("active", currentBuilding === 2);
@@ -1756,8 +1707,8 @@ function toggleTheme() {
     return;
   }
 
-  const rolled = await checkWeekRollover();
-  if (rolled) await loadScheduleFromSupabase();
+  const cleared = await checkWeekendClear();
+  if (cleared) await loadScheduleFromSupabase();
   await logSiteVisit();
   await loadAnnouncementFromDB();
   renderAnnouncement();
